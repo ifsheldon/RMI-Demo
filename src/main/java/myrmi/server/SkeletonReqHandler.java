@@ -10,7 +10,11 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class SkeletonReqHandler extends Thread
 {
@@ -24,6 +28,52 @@ public class SkeletonReqHandler extends Thread
         this.socket = socket;
         this.obj = remoteObj;
         this.objectKey = objectKey;
+    }
+
+    private static Method getMethod(Class<?> claz, String methodName, Object[] args) throws RemoteException, NoSuchMethodException
+    {
+        if (args == null || args.length == 0)// if the desired method has no arguments.
+            return claz.getMethod(methodName, null);
+
+        //else, filter out methods that have different names and different numbers of arguments
+        List<Method> candidates = Arrays.stream(claz.getMethods())
+                .filter(method -> methodName.equals(method.getName()))
+                .filter(method -> method.getParameterCount() == args.length).collect(Collectors.toList());
+
+        if (candidates.size() == 0)
+            throw new NoSuchMethodException();
+        else
+        {
+            ArrayList<Method> matchedMethods = new ArrayList<>();
+            for (Method m : candidates)
+            {
+                Class<?>[] types = m.getParameterTypes();
+                boolean match = true;
+                //iterate over all parameter types and check whether argument match each type
+                for (int i = 0; i < types.length; i++)
+                {
+                    Class<?> argITypeOfMethod = types[i];
+                    if (!argITypeOfMethod.isInstance(args[i]))
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match)
+                    matchedMethods.add(m);
+            }
+            if (matchedMethods.size() == 0)
+            {
+                throw new NoSuchMethodException();
+            } else if (matchedMethods.size() > 1)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Ambiguity Exception: too many matched methods: \n");
+                matchedMethods.forEach(m -> sb.append("   ").append(m.toString()).append("\n"));
+                throw new RemoteException(sb.toString());
+            } else
+                return matchedMethods.get(0);
+        }
     }
 
     @Override
@@ -40,7 +90,7 @@ public class SkeletonReqHandler extends Thread
         try
         {
             ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
-            Message request = (Message) ois.readObject();
+            Message request = (Message) ois.readObject(); //get request msg
             Message reply = new Message(this.objectKey, request.methodName, 0);
             if (request.objectKey != this.objectKey) // mismatched object key
             {
@@ -50,32 +100,35 @@ public class SkeletonReqHandler extends Thread
                 reply.setResult(re, Message.ResultStatus.ExceptionThrown);
             } else
             {
+                Method requestedMethod = null;
                 try
                 {
-                    Method requestedMethod = obj.getClass().getMethod(request.methodName, request.argTypes);
-                    boolean originAccessibility = requestedMethod.isAccessible();
-                    requestedMethod.setAccessible(true);
-                    try
-                    {
-                        Object returnVal = requestedMethod.invoke(obj, request.args);
-                        // all things gone fine
-                        reply.setResult(returnVal, Message.ResultStatus.Success);
-                    } catch (IllegalAccessException e) // should not happen since already set accessible
-                    {
-                        srhLogger.severe(String.format("Should Not Happen:\n%s", e.getMessage()));
-                        reply.setResult(-1, Message.ResultStatus.ServerSideError);
-                    } catch (InvocationTargetException e) // underlying method threw an exception
-                    {
-                        Throwable cause = e.getCause();
-                        reply.setResult(cause, Message.ResultStatus.ExceptionThrown);
-                    } finally
-                    {
-                        requestedMethod.setAccessible(originAccessibility);
-                    }
+                    requestedMethod = getMethod(obj.getClass(), request.methodName, request.args);
                 } catch (NoSuchMethodException nse)
                 {
                     reply.setResult(nse, Message.ResultStatus.InvocationError);
                 }
+
+                boolean originAccessibility = requestedMethod.isAccessible();
+                requestedMethod.setAccessible(true); // in case of private methods
+                try
+                {
+                    Object returnVal = requestedMethod.invoke(obj, request.args);
+                    // all things gone fine
+                    reply.setResult(returnVal, Message.ResultStatus.Success);
+                } catch (IllegalAccessException e) // should not happen since already set accessible
+                {
+                    srhLogger.severe(String.format("Should Not Happen:\n%s", e.getMessage()));
+                    reply.setResult(-1, Message.ResultStatus.ServerSideError);
+                } catch (InvocationTargetException e) // underlying method threw an exception
+                {
+                    Throwable cause = e.getCause();
+                    reply.setResult(cause, Message.ResultStatus.ExceptionThrown);
+                } finally
+                {
+                    requestedMethod.setAccessible(originAccessibility);
+                }
+
             }
 
             //send reply back to client
@@ -83,6 +136,7 @@ public class SkeletonReqHandler extends Thread
             oos.writeObject(reply);
             oos.flush();
             oos.close();
+
         } catch (IOException | ClassNotFoundException e) // if at server side IOException or not found the class of Message
         {
             srhLogger.severe(e.getMessage());
