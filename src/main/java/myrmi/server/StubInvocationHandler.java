@@ -35,7 +35,7 @@ public class StubInvocationHandler implements InvocationHandler, Serializable
          * 1. connect to remote skeleton, send method and arguments
          * 2. get result back and return to caller transparently
          * */
-        Socket socket = new Socket("localhost", Registry.REGISTRY_PORT);/////////////
+        Socket socket = new Socket(host, port);
         ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
         Message request = new Message(objectKey, method.getName(), args);
         oos.writeObject(request);
