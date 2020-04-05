@@ -7,8 +7,6 @@ import java.lang.reflect.Proxy;
 
 public class Util
 {
-
-
     public static Remote createStub(RemoteObjectRef ref)
     {
         //TODO: finish
@@ -22,6 +20,4 @@ public class Util
             return null;
         }
     }
-
-
 }
