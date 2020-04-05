@@ -40,6 +40,8 @@ public class UnicastRemoteObject implements Remote, java.io.Serializable
         //TODO: finish here
         Skeleton skeleton = new Skeleton(obj, host, port, obj.hashCode());
         skeleton.start();
-        return Util.createStub(new RemoteObjectRef(host,port,obj.hashCode(),"Remote"));
+        return (Remote) Proxy.newProxyInstance(obj.getClass().getClassLoader(),
+                obj.getClass().getInterfaces(),
+                new StubInvocationHandler(host, port, obj.hashCode()));
     }
 }
