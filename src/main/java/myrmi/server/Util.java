@@ -1,6 +1,7 @@
 package myrmi.server;
 
 import myrmi.Remote;
+import myrmi.intermediate.RemoteObjectRef;
 
 import java.lang.reflect.Proxy;
 

@@ -1,4 +1,4 @@
-package myrmi.server;
+package myrmi.intermediate;
 
 import myrmi.Remote;
 

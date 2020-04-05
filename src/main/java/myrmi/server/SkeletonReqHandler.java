@@ -2,6 +2,7 @@ package myrmi.server;
 
 import myrmi.Remote;
 import myrmi.exception.RemoteException;
+import myrmi.intermediate.Message;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -91,19 +92,19 @@ public class SkeletonReqHandler extends Thread
         {
             ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
             Message request = (Message) ois.readObject(); //get request msg
-            Message reply = new Message(this.objectKey, request.methodName, 0);
-            if (request.objectKey != this.objectKey) // mismatched object key
+            Message reply = new Message(this.objectKey, request.getMethodName(), 0);
+            if (request.getObjectKey() != this.objectKey) // mismatched object key
             {
                 RemoteException re = new RemoteException("Object Key not match");
                 srhLogger.warning(String.format("Object Key not match:\n    Request IP:%s\n    RequestObjectKey:%d\n    CurrentObjectKey:%d\n",
-                        socket.getInetAddress(), request.objectKey, this.objectKey));
+                        socket.getInetAddress(), request.getObjectKey(), this.objectKey));
                 reply.setResult(re, Message.ResultStatus.ExceptionThrown);
             } else
             {
                 Method requestedMethod = null;
                 try
                 {
-                    requestedMethod = getMethod(obj.getClass(), request.methodName, request.args);
+                    requestedMethod = getMethod(obj.getClass(), request.getMethodName(), request.getArgs());
                 } catch (NoSuchMethodException nse)
                 {
                     reply.setResult(nse, Message.ResultStatus.InvocationError);
@@ -113,7 +114,7 @@ public class SkeletonReqHandler extends Thread
                 requestedMethod.setAccessible(true); // in case of private methods
                 try
                 {
-                    Object returnVal = requestedMethod.invoke(obj, request.args);
+                    Object returnVal = requestedMethod.invoke(obj, request.getArgs());
                     // all things gone fine
                     reply.setResult(returnVal, Message.ResultStatus.Success);
                 } catch (IllegalAccessException e) // should not happen since already set accessible

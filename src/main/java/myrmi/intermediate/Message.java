@@ -1,4 +1,4 @@
-package myrmi.server;
+package myrmi.intermediate;
 
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
@@ -16,26 +16,16 @@ public class Message implements Serializable
     }
 
     int objectKey;//not sure whether it is needed
-    String methodName;
-    Class<?>[] argTypes;
-    Object[] args;
-    Object result;
-    ResultStatus status = ResultStatus.None;
+    private String methodName;
+    private Object[] args;
+    private Object result;
+    private ResultStatus status = ResultStatus.None;
 
     public Message(@NotNull int objectKey, @NotNull String methodName, @Nullable Object... args)
     {
         this.objectKey = objectKey;
         this.methodName = methodName;
         this.args = args;
-        if (args == null || args.length == 0)
-        {
-            argTypes = null;
-        } else
-        {
-            List<Class<?>> argList = Arrays.stream(args).map(Object::getClass).collect(Collectors.toList());
-            argTypes = new Class<?>[argList.size()];
-            argList.toArray(argTypes);
-        }
     }
 
     public Object getResult()
@@ -46,6 +36,21 @@ public class Message implements Serializable
     public ResultStatus getStatus()
     {
         return status;
+    }
+
+    public int getObjectKey()
+    {
+        return objectKey;
+    }
+
+    public String getMethodName()
+    {
+        return methodName;
+    }
+
+    public Object[] getArgs()
+    {
+        return args;
     }
 
     public void setResult(@Nullable Object result, @NotNull ResultStatus status)

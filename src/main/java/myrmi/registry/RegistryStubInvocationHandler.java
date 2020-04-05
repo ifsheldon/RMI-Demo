@@ -4,7 +4,7 @@ import myrmi.Remote;
 import myrmi.exception.AlreadyBoundException;
 import myrmi.exception.NotBoundException;
 import myrmi.exception.RemoteException;
-import myrmi.server.RemoteObjectRef;
+import myrmi.intermediate.RemoteObjectRef;
 import myrmi.server.Util;
 
 import java.lang.reflect.InvocationHandler;
@@ -40,7 +40,7 @@ public class RegistryStubInvocationHandler implements InvocationHandler
         {
             //TODO: Here you need special handling for lookup, because it returns a stub
             RemoteObjectRef rof = new RemoteObjectRef(registryRef.getHost(), registryRef.getPort(), result.hashCode(), Remote.class.getName());
-            result = Util.createStub(rof);//////////////????
+            result = Util.createStub(rof);//////////////infinite recursion here?
         }
         return result;
     }

@@ -1,7 +1,8 @@
 package myrmi.server;
 
 import myrmi.exception.RemoteException;
-import myrmi.registry.Registry;
+import myrmi.intermediate.Message;
+import myrmi.intermediate.RemoteObjectRef;
 
 import java.io.*;
 import java.lang.reflect.InvocationHandler;
@@ -47,11 +48,11 @@ public class StubInvocationHandler implements InvocationHandler, Serializable
                 throw new RemoteException("None replied");
             case ExceptionThrown:
             case InvocationError:
-                throw (Throwable) reply.result;
+                throw (Throwable) reply.getResult();
             case ServerSideError:
                 throw new RemoteException("ServerSideError");
             case Success:
-                return reply.result;
+                return reply.getResult();
             default:
                 return null;
         }

@@ -1,6 +1,7 @@
 package myrmi.server;
 
 import myrmi.Remote;
+import myrmi.intermediate.RemoteObjectRef;
 
 import java.io.IOException;
 import java.net.ServerSocket;
