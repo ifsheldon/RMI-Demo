@@ -1,28 +1,34 @@
 package myrmi.server;
 
 import myrmi.Remote;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import myrmi.exception.RemoteException;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
+import java.util.logging.Logger;
 
-public class SkeletonReqHandler extends Thread {
+public class SkeletonReqHandler extends Thread
+{
     private Socket socket;
     private Remote obj;
     private int objectKey;
+    private Logger srhLogger = Logger.getLogger("SkeletonReqHandlerLogger");
 
-    public SkeletonReqHandler(Socket socket, Remote remoteObj, int objectKey) {
+    public SkeletonReqHandler(Socket socket, Remote remoteObj, int objectKey)
+    {
         this.socket = socket;
         this.obj = remoteObj;
         this.objectKey = objectKey;
     }
 
     @Override
-    public void run() {
+    public void run()
+    {
         /*TODO: implement method here
          * You need to:
          * 1. handle requests from stub, receive invocation arguments
@@ -31,12 +37,68 @@ public class SkeletonReqHandler extends Thread {
          * 1 void method, 2 non-void method
          *
          *  */
-        int objectKey;
-        String methodName;
-        Class<?>[] argTypes;
-        Object[] args;
-        Object result;
-        throw new NotImplementedException();
+        try
+        {
+            ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+            Message request = (Message) ois.readObject();
+            Message reply = new Message(this.objectKey, request.methodName, 0);
+            if (request.objectKey != this.objectKey) // mismatched object key
+            {
+                RemoteException re = new RemoteException("Object Key not match");
+                srhLogger.warning(String.format("Object Key not match:\n    Request IP:%s\n    RequestObjectKey:%d\n    CurrentObjectKey:%d\n",
+                        socket.getInetAddress(), request.objectKey, this.objectKey));
+                reply.setResult(re, Message.ResultStatus.ExceptionThrown);
+            } else
+            {
+                try
+                {
+                    Method requestedMethod = obj.getClass().getMethod(request.methodName, request.argTypes);
+                    boolean originAccessibility = requestedMethod.isAccessible();
+                    requestedMethod.setAccessible(true);
+                    try
+                    {
+                        Object returnVal = requestedMethod.invoke(obj, request.args);
+                        // all things gone fine
+                        reply.setResult(returnVal, Message.ResultStatus.Success);
+                    } catch (IllegalAccessException e) // should not happen since already set accessible
+                    {
+                        srhLogger.severe(String.format("Should Not Happen:\n%s", e.getMessage()));
+                        reply.setResult(-1, Message.ResultStatus.ServerSideError);
+                    } catch (InvocationTargetException e) // underlying method threw an exception
+                    {
+                        Throwable cause = e.getCause();
+                        reply.setResult(cause, Message.ResultStatus.ExceptionThrown);
+                    } finally
+                    {
+                        requestedMethod.setAccessible(originAccessibility);
+                    }
+                } catch (NoSuchMethodException nse)
+                {
+                    reply.setResult(nse, Message.ResultStatus.InvocationError);
+                }
+            }
 
+            //send reply back to client
+            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+            oos.writeObject(reply);
+            oos.flush();
+            oos.close();
+        } catch (IOException | ClassNotFoundException e) // if at server side IOException or not found the class of Message
+        {
+            srhLogger.severe(e.getMessage());
+        } finally
+        {
+            if (!socket.isClosed())
+            {
+                try
+                {
+                    socket.close();
+                } catch (IOException e)
+                {
+                    srhLogger.warning(e.getMessage());
+                }
+            }
+        }
     }
+
 }
