@@ -9,10 +9,10 @@ public class Message implements Serializable
 {
     public enum ResultStatus
     {
-        None, ExceptionThrown, InvocationError, Success
+        None, ExceptionThrown, InvocationError, Success, ServerSideError
     }
 
-    int objectKey;
+    int objectKey;//not sure whether it is needed
     String methodName;
     Class<?>[] argTypes;
     Object[] args;
