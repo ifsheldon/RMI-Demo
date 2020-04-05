@@ -7,11 +7,17 @@ import java.util.stream.Collectors;
 
 public class Message implements Serializable
 {
+    public enum ResultStatus
+    {
+        None, ExceptionThrown, InvocationError, Success
+    }
+
     int objectKey;
     String methodName;
     Class<?>[] argTypes;
     Object[] args;
     Object result;
+    ResultStatus status = ResultStatus.None;
 
     public Message(int objectKey, String methodName, Object... args)
     {
@@ -28,8 +34,14 @@ public class Message implements Serializable
         return result;
     }
 
-    public void setResult(Object result)
+    public ResultStatus getStatus()
+    {
+        return status;
+    }
+
+    public void setResult(Object result, ResultStatus status)
     {
         this.result = result;
+        this.status = status;
     }
 }
