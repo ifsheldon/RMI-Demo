@@ -11,7 +11,15 @@ public class Util
     public static Remote createStub(RemoteObjectRef ref)
     {
         //TODO: finish
-        return (Remote) Proxy.newProxyInstance(Remote.class.getClassLoader(), new Class<?>[]{Remote.class}, new StubInvocationHandler(ref));
+        ClassLoader cl = Remote.class.getClassLoader();
+        try
+        {
+            return (Remote) Proxy.newProxyInstance(cl, new Class<?>[]{cl.loadClass(ref.getInterfaceName())}, new StubInvocationHandler(ref));
+        }catch (ClassNotFoundException cnfe)
+        {
+            cnfe.printStackTrace();
+            return null;
+        }
     }
 
 
