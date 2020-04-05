@@ -4,9 +4,6 @@ import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class Message implements Serializable
 {
@@ -15,7 +12,7 @@ public class Message implements Serializable
         None, ExceptionThrown, InvocationError, Success, ServerSideError
     }
 
-    int objectKey;//not sure whether it is needed
+    private int objectKey;//not sure whether it is needed
     private String methodName;
     private Object[] args;
     private Object result;
