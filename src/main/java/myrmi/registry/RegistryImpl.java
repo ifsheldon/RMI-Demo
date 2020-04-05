@@ -5,7 +5,6 @@ import myrmi.exception.AlreadyBoundException;
 import myrmi.exception.NotBoundException;
 import myrmi.exception.RemoteException;
 import myrmi.server.Skeleton;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.HashMap;
 
@@ -28,40 +27,48 @@ public class RegistryImpl implements Registry
     public Remote lookup(String name) throws RemoteException, NotBoundException
     {
         System.out.printf("RegistryImpl: lookup(%s)\n", name);
-        //TODO: implement method here
-        throw new NotImplementedException();
+        if (bindings.containsKey(name))
+            return bindings.get(name);
+        else
+            throw new NotBoundException();
     }
 
+    ////////////////////////
     public void bind(String name, Remote obj) throws RemoteException, AlreadyBoundException
     {
         System.out.printf("RegistryImpl: bind(%s)\n", name);
-
-        //TODO: implement method here
-        throw new NotImplementedException();
-
+        if (bindings.containsKey(name))
+            throw new AlreadyBoundException();
+        else
+            bindings.put(name, obj);
     }
 
+    ///////////////
     public void unbind(String name) throws RemoteException, NotBoundException
     {
         System.out.printf("RegistryImpl: unbind(%s)\n", name);
-
-        //TODO: implement method here
-        throw new NotImplementedException();
+        if (bindings.containsKey(name))
+            bindings.remove(name);
+        else
+            throw new NotBoundException();
 
     }
 
+    //////////////
     public void rebind(String name, Remote obj) throws RemoteException
     {
         System.out.printf("RegistryImpl: rebind(%s)\n", name);
-
-        //TODO: implement method here
-        throw new NotImplementedException();
+        if (bindings.containsKey(name))
+            bindings.replace(name, obj);
+        else
+            bindings.put(name, obj);
     }
 
     public String[] list() throws RemoteException
     {
-        //TODO: implement method here
-        throw new NotImplementedException();
+        String[] names = new String[bindings.size()];
+        bindings.keySet().toArray(names);
+        return names;
     }
 
     public static void main(String args[])
