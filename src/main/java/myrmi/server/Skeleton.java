@@ -1,31 +1,35 @@
 package myrmi.server;
 
 import myrmi.Remote;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
+import java.util.logging.Logger;
 
-public class Skeleton extends Thread {
+// Improvement TODO: use thread pool
+public class Skeleton extends Thread
+{
     static final int BACKLOG = 5;
+    private Logger logger = Logger.getLogger("SkeletonLogger");
     private Remote remoteObj;
 
     private String host;
     private int port;
     private int objectKey;
 
-    public int getPort() {
+    public int getPort()
+    {
         return port;
     }
 
-    public Skeleton(Remote remoteObj, RemoteObjectRef ref) {
+    public Skeleton(Remote remoteObj, RemoteObjectRef ref)
+    {
         this(remoteObj, ref.getHost(), ref.getPort(), ref.getObjectKey());
     }
 
-    public Skeleton(Remote remoteObj, String host, int port, int objectKey) {
+    public Skeleton(Remote remoteObj, String host, int port, int objectKey)
+    {
         super();
         this.remoteObj = remoteObj;
         this.host = host;
@@ -35,14 +39,27 @@ public class Skeleton extends Thread {
     }
 
     @Override
-    public void run() {
+    public void run()
+    {
         /*TODO: implement method here
          * You need to:
          * 1. create a server socket to listen for incoming connections
          * 2. use a handler thread to process each request (SkeletonReqHandler)
          *  */
-
-        throw new NotImplementedException();
+        try
+        {
+            ServerSocket listenSocket = new ServerSocket(port);
+            Socket socket;
+            while ((socket = listenSocket.accept()) != null)
+            {
+                SkeletonReqHandler requestHandler = new SkeletonReqHandler(socket, remoteObj, objectKey);
+                requestHandler.start();
+            }
+            logger.info("server socket listening finished");
+        } catch (IOException ioe)
+        {
+            logger.warning(ioe.getMessage());
+        }
 
     }
 }
