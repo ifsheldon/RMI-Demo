@@ -32,7 +32,7 @@ public class RegistryImpl implements Registry
             throw new NotBoundException();
     }
 
-    ////////////////////////
+
     public void bind(String name, Remote obj) throws RemoteException, AlreadyBoundException
     {
         System.out.printf("RegistryImpl: bind(%s)\n", name);
@@ -42,7 +42,7 @@ public class RegistryImpl implements Registry
             bindings.put(name, obj);
     }
 
-    ///////////////
+
     public void unbind(String name) throws RemoteException, NotBoundException
     {
         System.out.printf("RegistryImpl: unbind(%s)\n", name);
@@ -53,7 +53,7 @@ public class RegistryImpl implements Registry
 
     }
 
-    //////////////
+
     public void rebind(String name, Remote obj) throws RemoteException
     {
         System.out.printf("RegistryImpl: rebind(%s)\n", name);
@@ -84,6 +84,5 @@ public class RegistryImpl implements Registry
         }
 
         System.out.printf("RMI Registry is listening on port %d\n", regPort);
-
     }
 }
