@@ -22,6 +22,18 @@ public class RegistryImpl implements Registry
         skeleton.start();
     }
 
+    /**
+     * To support binding to different IP
+     * @param host IP address
+     * @param port port number
+     * @throws RemoteException
+     */
+    public RegistryImpl(String host, int port) throws RemoteException
+    {
+        Skeleton skeleton = new Skeleton(this, host, port, 0);
+        skeleton.start();
+    }
+
 
     public Remote lookup(String name) throws RemoteException, NotBoundException
     {
