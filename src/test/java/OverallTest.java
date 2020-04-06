@@ -22,7 +22,7 @@ public class OverallTest {
 
         Registry registry = LocateRegistry.createRegistry();
         TestInterface impl = new TestInterfaceImpl();
-        TestInterface stubServerSide = (TestInterface) UnicastRemoteObject.exportObject(impl, 0);
+        TestInterface stubServerSide = (TestInterface) UnicastRemoteObject.exportObject(impl, 12345);
         registry.rebind("Test", stubServerSide);
         stub = (TestInterface) LocateRegistry.getRegistry().lookup("Test");
         System.out.println("Lookup");
