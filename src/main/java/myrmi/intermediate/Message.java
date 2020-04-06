@@ -5,8 +5,15 @@ import com.sun.istack.internal.Nullable;
 
 import java.io.Serializable;
 
+/**
+ * Attribute class
+ * For exchanging requests and replies via serialization and network
+ */
 public class Message implements Serializable
 {
+    /**
+     * Indicating different status
+     */
     public enum ResultStatus
     {
         None, ExceptionThrown, InvocationError, Success, ServerSideError
