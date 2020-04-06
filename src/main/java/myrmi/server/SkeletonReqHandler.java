@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class SkeletonReqHandler extends Thread
 {
     private Socket socket;
-    private Remote obj;
+    private final Remote obj;
     private int objectKey;
     private Logger srhLogger = Logger.getLogger("SkeletonReqHandlerLogger");
 
@@ -131,7 +131,11 @@ public class SkeletonReqHandler extends Thread
                     requestedMethod.setAccessible(true); // in case of private methods
                     try
                     {
-                        Object returnVal = requestedMethod.invoke(obj, request.getArgs());
+                        Object returnVal;
+                        synchronized (obj)
+                        {
+                            returnVal = requestedMethod.invoke(obj, request.getArgs());
+                        }
                         // all things gone fine
                         reply.setResult(returnVal, Message.ResultStatus.Success);
                     } catch (IllegalAccessException e) // should not happen since already set accessible
