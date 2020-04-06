@@ -101,35 +101,32 @@ public class SkeletonReqHandler extends Thread
                 reply.setResult(re, Message.ResultStatus.ExceptionThrown);
             } else
             {
-                Method requestedMethod = null;
                 try
                 {
-                    requestedMethod = getMethod(obj.getClass(), request.getMethodName(), request.getArgs());
+                    Method requestedMethod = getMethod(obj.getClass(), request.getMethodName(), request.getArgs());
+                    boolean originAccessibility = requestedMethod.isAccessible();
+                    requestedMethod.setAccessible(true); // in case of private methods
+                    try
+                    {
+                        Object returnVal = requestedMethod.invoke(obj, request.getArgs());
+                        // all things gone fine
+                        reply.setResult(returnVal, Message.ResultStatus.Success);
+                    } catch (IllegalAccessException e) // should not happen since already set accessible
+                    {
+                        srhLogger.severe(String.format("Should Not Happen:\n%s", e.getMessage()));
+                        reply.setResult(-1, Message.ResultStatus.ServerSideError);
+                    } catch (InvocationTargetException e) // underlying method threw an exception
+                    {
+                        Throwable cause = e.getCause();
+                        reply.setResult(cause, Message.ResultStatus.ExceptionThrown);
+                    } finally
+                    {
+                        requestedMethod.setAccessible(originAccessibility);
+                    }
                 } catch (NoSuchMethodException nse)
                 {
                     reply.setResult(nse, Message.ResultStatus.InvocationError);
                 }
-
-                boolean originAccessibility = requestedMethod.isAccessible();
-                requestedMethod.setAccessible(true); // in case of private methods
-                try
-                {
-                    Object returnVal = requestedMethod.invoke(obj, request.getArgs());
-                    // all things gone fine
-                    reply.setResult(returnVal, Message.ResultStatus.Success);
-                } catch (IllegalAccessException e) // should not happen since already set accessible
-                {
-                    srhLogger.severe(String.format("Should Not Happen:\n%s", e.getMessage()));
-                    reply.setResult(-1, Message.ResultStatus.ServerSideError);
-                } catch (InvocationTargetException e) // underlying method threw an exception
-                {
-                    Throwable cause = e.getCause();
-                    reply.setResult(cause, Message.ResultStatus.ExceptionThrown);
-                } finally
-                {
-                    requestedMethod.setAccessible(originAccessibility);
-                }
-
             }
 
             //send reply back to client
