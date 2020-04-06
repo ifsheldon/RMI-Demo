@@ -31,6 +31,15 @@ public class SkeletonReqHandler extends Thread
         this.objectKey = objectKey;
     }
 
+    /**
+     *
+     * @param claz the class that the to-be-found methods attach to
+     * @param methodName method name
+     * @param args objects to be passed to the method
+     * @return found matched method
+     * @throws RemoteException thrown when more than 1 methods are found, imply ambiguity
+     * @throws NoSuchMethodException when no matched methods
+     */
     private Method getMethod(Class<?> claz, String methodName, Object[] args) throws RemoteException, NoSuchMethodException
     {
         if (args == null || args.length == 0)// if the desired method has no arguments.
@@ -148,7 +157,7 @@ public class SkeletonReqHandler extends Thread
                         reply.setResult(cause, Message.ResultStatus.ExceptionThrown);
                     } finally
                     {
-                        requestedMethod.setAccessible(originAccessibility);
+                        requestedMethod.setAccessible(originAccessibility); // restore accessibility
                     }
                 } catch (NoSuchMethodException nse)
                 {
