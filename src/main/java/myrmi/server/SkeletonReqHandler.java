@@ -31,7 +31,7 @@ public class SkeletonReqHandler extends Thread
         this.objectKey = objectKey;
     }
 
-    private static Method getMethod(Class<?> claz, String methodName, Object[] args) throws RemoteException, NoSuchMethodException
+    private Method getMethod(Class<?> claz, String methodName, Object[] args) throws RemoteException, NoSuchMethodException
     {
         if (args == null || args.length == 0)// if the desired method has no arguments.
             return claz.getMethod(methodName, null);
@@ -54,6 +54,29 @@ public class SkeletonReqHandler extends Thread
                 for (int i = 0; i < types.length; i++)
                 {
                     Class<?> argITypeOfMethod = types[i];
+                    //specially handle the cases of primitives
+                    if(argITypeOfMethod.isPrimitive())
+                    {
+                        if(argITypeOfMethod.equals(int.class))
+                            argITypeOfMethod = Integer.class;
+                        else if(argITypeOfMethod.equals(double.class))
+                            argITypeOfMethod = Double.class;
+                        else if(argITypeOfMethod.equals(boolean.class))
+                            argITypeOfMethod = Boolean.class;
+                        else if(argITypeOfMethod.equals(byte.class))
+                            argITypeOfMethod = Byte.class;
+                        else if(argITypeOfMethod.equals(float.class))
+                            argITypeOfMethod = Float.class;
+                        else if(argITypeOfMethod.equals(short.class))
+                            argITypeOfMethod = Short.class;
+                        else if(argITypeOfMethod.equals(char.class))
+                            argITypeOfMethod = Character.class;
+                        else if(argITypeOfMethod.equals(long.class))
+                            argITypeOfMethod = Long.class;
+                        else
+                            srhLogger.severe("Should not enter this branch");
+                    }
+
                     if (!argITypeOfMethod.isInstance(args[i]))
                     {
                         match = false;
