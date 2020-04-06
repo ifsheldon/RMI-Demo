@@ -36,12 +36,12 @@ public class RegistryStubInvocationHandler implements InvocationHandler
         {
             throw e.getCause();
         }
-        if ("lookup".equals(method.getName()))
-        {
-            //TODO: Here you need special handling for lookup, because it returns a stub
-            RemoteObjectRef rof = new RemoteObjectRef(registryRef.getHost(), registryRef.getPort(), result.hashCode(), Remote.class.getName());
-            result = Util.createStub(rof);//////////////infinite recursion here?
-        }
+//        if ("lookup".equals(method.getName()))
+//        {
+//            //TODO: Here you need special handling for lookup, because it returns a stub
+//            RemoteObjectRef rof = new RemoteObjectRef(registryRef.getHost(), registryRef.getPort(), result.hashCode(), Remote.class.getName());
+//            result = Util.createStub(rof);//////////////??????
+//        }
         return result;
     }
 }
