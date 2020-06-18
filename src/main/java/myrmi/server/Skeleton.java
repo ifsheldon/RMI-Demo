@@ -12,12 +12,12 @@ import java.util.logging.Logger;
 public class Skeleton extends Thread
 {
     static final int BACKLOG = 5;
-    private Logger logger = Logger.getLogger("SkeletonLogger");
-    private Remote remoteObj;
+    private final Logger logger = Logger.getLogger("SkeletonLogger");
+    private final Remote remoteObj;
 
-    private String host;
-    private int port;
-    private int objectKey;
+    private final String host;
+    private final int port;
+    private final int objectKey;
 
     public int getPort()
     {
