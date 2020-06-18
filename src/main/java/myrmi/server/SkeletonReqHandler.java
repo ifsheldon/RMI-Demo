@@ -19,10 +19,10 @@ import java.util.stream.Collectors;
 
 public class SkeletonReqHandler extends Thread
 {
-    private Socket socket;
+    private final Socket socket;
     private final Remote obj;
-    private int objectKey;
-    private Logger srhLogger = Logger.getLogger("SkeletonReqHandlerLogger");
+    private final int objectKey;
+    private final Logger srhLogger = Logger.getLogger("SkeletonReqHandlerLogger");
 
     public SkeletonReqHandler(Socket socket, Remote remoteObj, int objectKey)
     {
