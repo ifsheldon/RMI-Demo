@@ -5,10 +5,10 @@ import myrmi.Remote;
 import java.io.Serializable;
 
 public class RemoteObjectRef implements Serializable, Remote {
-    private String host;
+    private final String host;
     private int port;
-    private int objectKey;
-    private String interfaceName;
+    private final int objectKey;
+    private final String interfaceName;
 
     public String getHost() {
         return host;
