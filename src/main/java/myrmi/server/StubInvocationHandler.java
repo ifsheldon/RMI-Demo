@@ -11,9 +11,9 @@ import java.net.Socket;
 
 public class StubInvocationHandler implements InvocationHandler, Serializable
 {
-    private String host;
-    private int port;
-    private int objectKey;
+    private final String host;
+    private final int port;
+    private final int objectKey;
 
     public StubInvocationHandler(String host, int port, int objectKey)
     {
