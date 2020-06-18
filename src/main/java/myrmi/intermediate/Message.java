@@ -1,7 +1,5 @@
 package myrmi.intermediate;
 
-import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
 
 import java.io.Serializable;
 
@@ -25,7 +23,7 @@ public class Message implements Serializable
     private Object result;
     private ResultStatus status = ResultStatus.None;
 
-    public Message(@NotNull int objectKey, @NotNull String methodName, @Nullable Object... args)
+    public Message(int objectKey, String methodName, Object... args)
     {
         this.objectKey = objectKey;
         this.methodName = methodName;
@@ -57,7 +55,7 @@ public class Message implements Serializable
         return args;
     }
 
-    public void setResult(@Nullable Object result, @NotNull ResultStatus status)
+    public void setResult(Object result, ResultStatus status)
     {
         this.result = result;
         this.status = status;
