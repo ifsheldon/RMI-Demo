@@ -5,8 +5,6 @@ import myrmi.registry.LocateRegistry;
 import myrmi.registry.Registry;
 
 
-
-
 public class ServerRunner
 {
     public static void main(String[] args)
