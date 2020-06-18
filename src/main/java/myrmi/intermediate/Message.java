@@ -19,9 +19,9 @@ public class Message implements Serializable
         None, ExceptionThrown, InvocationError, Success, ServerSideError
     }
 
-    private int objectKey;//not sure whether it is needed
-    private String methodName;
-    private Object[] args;
+    private final int objectKey;//not sure whether it is needed
+    private final String methodName;
+    private final Object[] args;
     private Object result;
     private ResultStatus status = ResultStatus.None;
 
