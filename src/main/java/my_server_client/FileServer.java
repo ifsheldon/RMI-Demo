@@ -13,8 +13,8 @@ import java.util.HashMap;
 
 public class FileServer extends UnicastRemoteObject implements RemoteFileServer
 {
-    private HashMap<String, Long> accessTable = new HashMap<>();
-    private Calendar calendar = Calendar.getInstance();
+    private final HashMap<String, Long> accessTable = new HashMap<>();
+    private final Calendar calendar = Calendar.getInstance();
 
     public FileServer() throws RemoteException
     {
@@ -40,8 +40,7 @@ public class FileServer extends UnicastRemoteObject implements RemoteFileServer
         File f = new File(filename);
         if (!f.exists())
         {
-            FileNotFoundException e = new FileNotFoundException(filename);
-            throw e;
+            throw new FileNotFoundException(filename);
         } else
         {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
@@ -62,8 +61,7 @@ public class FileServer extends UnicastRemoteObject implements RemoteFileServer
         File f = new File(filename);
         if (!f.exists())
         {
-            FileNotFoundException e = new FileNotFoundException(filename);
-            throw e;
+            throw new FileNotFoundException(filename);
         } else
         {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f, append)));
@@ -83,8 +81,7 @@ public class FileServer extends UnicastRemoteObject implements RemoteFileServer
         File f = new File(filename);
         if (!f.exists())
         {
-            FileNotFoundException e = new FileNotFoundException(filename);
-            throw e;
+            throw new FileNotFoundException(filename);
         }
         updateTable(filename);
         return f.length();
@@ -99,8 +96,7 @@ public class FileServer extends UnicastRemoteObject implements RemoteFileServer
         File f = new File(filename);
         if (!f.exists())
         {
-            FileNotFoundException e = new FileNotFoundException(filename);
-            throw e;
+            throw new FileNotFoundException(filename);
         }
         updateTable(filename);
         return f.lastModified();
@@ -115,8 +111,7 @@ public class FileServer extends UnicastRemoteObject implements RemoteFileServer
         File f = new File(filename);
         if (!f.exists())
         {
-            FileNotFoundException e = new FileNotFoundException(filename);
-            throw e;
+            throw new FileNotFoundException(filename);
         }
         long t = accessTable.getOrDefault(filename, calendar.getTimeInMillis());
         updateTable(filename);
@@ -135,8 +130,7 @@ public class FileServer extends UnicastRemoteObject implements RemoteFileServer
         {
             if (!replaceExisted)
             {
-                FileAlreadyExistsException e = new FileAlreadyExistsException(fileName);
-                throw e;
+                throw new FileAlreadyExistsException(fileName);
             } else
                 f.delete();
         }
@@ -153,8 +147,7 @@ public class FileServer extends UnicastRemoteObject implements RemoteFileServer
         File f = new File(fileName);
         if (!f.exists())
         {
-            FileNotFoundException e = new FileNotFoundException(fileName);
-            throw e;
+            throw new FileNotFoundException(fileName);
         }
         boolean deleted = f.delete();
         if (deleted)
@@ -173,8 +166,7 @@ public class FileServer extends UnicastRemoteObject implements RemoteFileServer
         File srcFile = new File(sourceFileName);
         if (!srcFile.exists())
         {
-            FileNotFoundException e = new FileNotFoundException("source not found");
-            throw e;
+            throw new FileNotFoundException("source not found");
         } else
         {
             File destFile = new File(destFileName);
@@ -205,8 +197,7 @@ public class FileServer extends UnicastRemoteObject implements RemoteFileServer
         File srcFile = new File(sourceFileName);
         if (!srcFile.exists())
         {
-            FileNotFoundException e = new FileNotFoundException("source not found");
-            throw e;
+            throw new FileNotFoundException("source not found");
         }
         File destFile = new File(destFileName);
         if (destFile.exists())
